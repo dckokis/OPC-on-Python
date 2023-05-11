@@ -97,59 +97,47 @@ def delete(tree, data):
     """Delete element with equal data and return its data if any."""
     if not tree.root:
         return None
-    # НЕПРАВИЛЬНО
-    remove = tree.root
-    if tree.cmp_func(tree.root.data, data) == 0:
-        remove.data = tree.root.data
-        if tree.root.left:
-            tree.root = tree.root.left
-        else:
-            tree.root = tree.root.right
-        return remove.data
-
     cur = tree.root
-    ancestor = tree.root
-
-    while True:
-        cmp = tree.cmp_func(cur.data, data)
+    cmp = tree.cmp_func(cur.data, data)
+    while cur.data != data:
         if cmp < 0 and cur.right:
-            ancestor = cur
+            parent = cur
             cur = cur.right
         elif cmp > 0 and cur.left:
-            ancestor = cur
+            parent = cur
             cur = cur.left
-        elif cmp != 0:
+        else:
             return None
-        else:
-            break
-    if cur.left is None and cur.right is None:  # reached cur.data == data
-        remove = cur.data
-        return remove
+    if cur.left is None and cur.right is None: #дошли до cur.data == data
+        removable = cur.data
+        cur is None
+        return removable
     if cur.left is None:
-        remove = cur.data
-        if tree.cmp_func(ancestor.data, data) > 0:
-            ancestor.left = cur.right
+        removable = cur.data
+        if tree.cmp_func(parent.data, data) > 0:
+            parent.left = cur.right
         else:
-            ancestor.right = cur.right
-        return remove
+            parent.right = cur.right
+        return removable
     if cur.right is None:
-        remove = cur.data
-        if tree.cmp_func(ancestor.data, data) > 0:
-            ancestor.left = cur.left
+        removable = cur.data
+        if tree.cmp_func(parent.data, data) > 0:
+            parent.left = cur.left
         else:
-            ancestor.right = cur.left
-        return remove
-    remove = cur
-    if cur.right and cur.left:  # finding max on the left branch
-        cur = cur.left
-        ancestor = cur
-        while cur.right:
-            ancestor = cur
-            cur = cur.right
+            parent.right = cur.left
+        return removable
+    removable = cur
+    if cur.right and cur.left: #поиск минимума по правой ветке
+        cur = cur.right
+        parent = cur
+        while cur.left:
+            parent = cur
+            cur = cur.left
     min = cur.data
-    remove.data = min
-    ancestor.right = cur.left
-    return remove.data
+    #нашли минимум, вытаскиваем его наверх вместо data и удаляем то, что вытащили
+    removable.data = min
+    parent.left = cur.right
+    return removable.data
 
 
 def _foreach(node, func):
